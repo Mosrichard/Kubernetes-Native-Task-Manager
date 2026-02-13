@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongodb-service
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - task-network
+
+  backend:
+    build: ./backend
+    container_name: backend-service
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongodb-service:27017/taskmanager
+    depends_on:
+      - mongo
+    networks:
+      - task-network
+
+  frontend:
+    build: ./frontend
+    container_name: task-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - task-network
+
+networks:
+  task-network:
+
+volumes:
+  mongo-data:
